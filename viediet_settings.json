@@ -1,0 +1,193 @@
+{
+  "force_join": {
+    "enabled": true,
+    "channels": [
+      "@viedietlooters"
+    ]
+  },
+  "monitor_interval": 1.0,
+  "user_databases": {
+    "admfb_1": {
+      "url": "https://aaya-6e335-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359208
+    },
+    "admfb_2": {
+      "url": "https://aaya2-8df9a-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359349
+    },
+    "admfb_3": {
+      "url": "https://aditya-9f66b-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359494
+    },
+    "admfb_4": {
+      "url": "https://ajay-33c1b-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359575
+    },
+    "admfb_5": {
+      "url": "https://ajna-20fc4-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359616
+    },
+    "admfb_6": {
+      "url": "https://alpha-af0d2.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359675
+    },
+    "admfb_7": {
+      "url": "https://ankur-2511f-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359728
+    },
+    "admfb_8": {
+      "url": "https://anvith6-9450e-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359814
+    },
+    "admfb_9": {
+      "url": "https://apkdriod-f6fb9-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359854
+    },
+    "admfb_10": {
+      "url": "https://apkpure-6eb6a-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3359902
+    },
+    "admfb_11": {
+      "url": "https://aya-baby-c3a6b-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360028
+    },
+    "admfb_12": {
+      "url": "https://aya-wed-anvith-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360112
+    },
+    "admfb_13": {
+      "url": "https://babu-2b2c2-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360188
+    },
+    "admfb_14": {
+      "url": "https://bandhan2-7jan-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360262
+    },
+    "admfb_15": {
+      "url": "https://bbbbbb8-a06fb-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360386
+    },
+    "admfb_16": {
+      "url": "https://business-apps-5aeb2-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360553
+    },
+    "admfb_17": {
+      "url": "https://can-4-668a0-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.336068
+    },
+    "admfb_18": {
+      "url": "https://chalo-a536a-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360806
+    },
+    "admfb_19": {
+      "url": "https://chhnuk05-3188e-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3360932
+    },
+    "admfb_20": {
+      "url": "https://craxs-4c542-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3361142
+    },
+    "admfb_21": {
+      "url": "https://cs23-9e709-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3361225
+    },
+    "admfb_22": {
+      "url": "https://customer03support-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3361378
+    },
+    "admfb_23": {
+      "url": "https://darknet-26b68-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3361597
+    },
+    "admfb_24": {
+      "url": "https://davil-d4e77-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3361695
+    },
+    "admfb_25": {
+      "url": "https://fir-27c9e-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3362145
+    },
+    "admfb_26": {
+      "url": "https://fortydata-fee65-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3362777
+    },
+    "admfb_27": {
+      "url": "https://fpro3indus-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.336284
+    },
+    "admfb_28": {
+      "url": "https://gsjjshdbs-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3362992
+    },
+    "admfb_29": {
+      "url": "https://hdmax1-58366-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3363078
+    },
+    "admfb_30": {
+      "url": "https://igii-1d529-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3363132
+    },
+    "admfb_31": {
+      "url": "https://jamtar7-95f77-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.336321
+    },
+    "admfb_32": {
+      "url": "https://jamtara140-73bf7-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3363268
+    },
+    "admfb_33": {
+      "url": "https://jsjsjdj-7f0d1-default-rtdb.firebaseio.com",
+      "added_by": 1364476174,
+      "ts": 1786791625.3363402
+    }
+  },
+  "users": {
+    "1364476174": {
+      "access_until": 0,
+      "referred": []
+    },
+    "8139558808": {
+      "access_until": 1786875760.603456,
+      "referred": []
+    }
+  },
+  "assignments": {
+    "8139558808": {
+      "idx": 12,
+      "num": "6370405537",
+      "ts": 1786790721.2500212
+    }
+  }
+}

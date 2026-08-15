@@ -1,0 +1,12 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python viediet_otp_bot.py"
+healthcheckPath = ""
+healthcheckTimeout = 100
+
+[run]
+# Data persistence ke liye Railway Volume mount karo aur env set karo:
+# VIEDIET_DATA_DIR=/data
+# VIEDIET_BOT_TOKEN=apna_token
