@@ -54,7 +54,9 @@ log = logging.getLogger("viediet_otp_bot")
 # CONFIG — YAHA SE EDIT KARO
 # ═══════════════════════════════════════════════════════════════
 
-BOT_TOKEN = os.environ.get("VIEDIET_BOT_TOKEN")   # ← BotFather ka naya token (Railway me env se bhi aa sakta)
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN environment variable not set!")   # ← BotFather ka naya token (Railway me env se bhi aa sakta)
 
 # Sirf ye user IDs bot use kar sakte hain (apna Telegram ID daalo)
 ADMIN_IDS = [1364476174,8455570642]
