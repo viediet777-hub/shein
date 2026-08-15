@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "python viediet_otp_bot.py"
+startCommand = "python main.py"
 healthcheckPath = ""
 healthcheckTimeout = 100
 
