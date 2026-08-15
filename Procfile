@@ -1,1 +1,1 @@
-web: python viediet_otp_bot.py
+web: python main.py
