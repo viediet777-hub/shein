@@ -20,6 +20,7 @@ import base64
 import html
 import json
 import logging
+import math
 import os
 import random
 import re
@@ -54,9 +55,9 @@ log = logging.getLogger("viediet_otp_bot")
 # CONFIG — YAHA SE EDIT KARO
 # ═══════════════════════════════════════════════════════════════
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN environment variable not set!")   # ← BotFather ka naya token (Railway me env se bhi aa sakta)
+BOT_TOKEN = os.environ.get("VIEDIET_BOT_TOKEN", "8773133018:AAEpo5FvlodjuPvthv2-iNoMMWNzFL02_uM")   # ← BotFather ka token (Railway me env se bhi aa sakta)
+
+BOT_USERNAME: Optional[str] = None   # get_me() se auto-cache hota hai; refer link yahi use karta hai
 
 # Sirf ye user IDs bot use kar sakte hain (apna Telegram ID daalo)
 ADMIN_IDS = [1364476174,8455570642]
@@ -854,7 +855,7 @@ def _refer_screen_text(user_id: int, first_name: str, context) -> tuple:
     users = settings.setdefault("users", {})
     u = users.setdefault(str(user_id), {"access_until": 0, "referred": []})
     referred_count = len(u.get("referred", []))
-    link = f"https://t.me/viediet_otp_bot?start=ref_{user_id}"
+    link = f"https://t.me/{BOT_USERNAME or 'ViedietOtp_bot'}?start=ref_{user_id}"
     text = (
         f"{BRAND}\n━━━━━━━━━━━━━━━━\n"
         f"⏰ <b>Aapka access nahi hai</b>\n\n"
@@ -873,14 +874,17 @@ def _refer_screen_text(user_id: int, first_name: str, context) -> tuple:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global BOT_USERNAME
+    if not BOT_USERNAME:
+        try:
+            BOT_USERNAME = (await context.bot.get_me()).username
+        except Exception:
+            pass
     user = update.effective_user
 
-    # ── 1) FORCE JOIN sabse pehle ──────────────────────────────────
-    if not is_admin(user.id):
-        if not await _force_join_ok(update, context):
-            return
-
-    # ── 2) Refer deep link: /start ref_<id> ────────────────────────
+    # ── 1) Refer deep link: /start ref_<id> — FORCE-JOIN SE PEHLE ──
+    # (pehle force-join tha → naya user joined nahi to refer kabhi
+    #  register nahi hota tha — isliye ab ref pehle process hota hai)
     if context.args and context.args[0].startswith("ref_"):
         ref_id = context.args[0][4:]
         if ref_id.isdigit() and int(ref_id) != user.id:
@@ -892,7 +896,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 rl = users.setdefault(rk, {"access_until": 0, "referred": []})
                 if str(user.id) not in rl.get("referred", []):
                     rl.setdefault("referred", []).append(str(user.id))
-                    rl["access_until"] = float(rl.get("access_until", 0)) + REF_HOURS * 3600
+                    rl["access_until"] = max(
+                        time.time() + REF_HOURS * 3600,
+                        float(rl.get("access_until", 0)) + REF_HOURS * 3600)
             save_settings()
             await update.message.reply_text(
                 f"🎉 <b>Welcome {html.escape(user.first_name)}!</b>\n"
@@ -900,6 +906,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"⏰ Access: <b>+{REF_HOURS} hour</b>\n\n"
                 f"📢 Ek aur friend ko refer karo = aur <b>{REF_HOURS} hour</b>!",
                 parse_mode=ParseMode.HTML)
+
+    # ── 2) FORCE JOIN ─────────────────────────────────────────────
+    if not is_admin(user.id):
+        if not await _force_join_ok(update, context):
+            return
 
     # ── 3) Access gate → refer screen ──────────────────────────────
     if not is_admin(user.id) and not has_access(user.id):
@@ -915,7 +926,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"<b>kisi bhi app ya website ka OTP</b> yahan live dikhega.\n\n"
         f"🧭 <b>Buttons se sab kuch:</b>\n"
         f"📡 Numbers — saare numbers (🟢/⚫)\n"
-        f"👥 Refer & Earn — 1 refer = 1 hour\n"
+        f"👥 Refer & Earn — 1 refer = {REF_HOURS} hours\n"
         f"📊 Status — live counts"
     )
     _send_rows(update.effective_chat.id, text, home_keyboard(user.id))
@@ -943,7 +954,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id):
         if not has_access(update.effective_user.id):
             await update.message.reply_text(
-                "⏰ <b>Access nahi hai!</b>\n\n📢 1 Refer = 1 hour use!\n/start se apna refer link lo.",
+                f"⏰ <b>Access nahi hai!</b>\n\n📢 1 Refer = {REF_HOURS} hours use!\n/start se apna refer link lo.",
                 parse_mode=ParseMode.HTML)
             return
     with state_lock:
@@ -1011,7 +1022,7 @@ async def panels_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id):
         if not has_access(update.effective_user.id):
             await update.message.reply_text(
-                "⏰ <b>Access nahi hai!</b>\n\n📢 1 Refer = 1 hour use!\n/start se apna refer link lo.",
+                f"⏰ <b>Access nahi hai!</b>\n\n📢 1 Refer = {REF_HOURS} hours use!\n/start se apna refer link lo.",
                 parse_mode=ParseMode.HTML)
             return
         if not await _force_join_ok(update, context):
@@ -1175,7 +1186,7 @@ async def all_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id):
         if not has_access(update.effective_user.id):
             await update.message.reply_text(
-                "⏰ <b>Access nahi hai!</b>\n\n📢 1 Refer = 1 hour use!\n/start se apna refer link lo.",
+                f"⏰ <b>Access nahi hai!</b>\n\n📢 1 Refer = {REF_HOURS} hours use!\n/start se apna refer link lo.",
                 parse_mode=ParseMode.HTML)
             return
         if not await _force_join_ok(update, context):
@@ -1348,8 +1359,10 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             bot_info = await context.bot.get_me()
             uname = bot_info.username
+            global BOT_USERNAME
+            BOT_USERNAME = uname
         except Exception:
-            uname = "viediet_otp_bot"
+            uname = BOT_USERNAME or "ViedietOtp_bot"
         link = f"https://t.me/{uname}?start=ref_{uid}"
         try:
             access_left = max(0, int((float(u.get("access_until", 0)) - now_ts) / 3600))
@@ -1394,11 +1407,11 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if data in ("verify", "admin", "fjtoggle", "fjadd", "fjrm", "clearcache", "broadcast",
-                "fbrm", "users", "grant"):
+                "fbrm", "users", "grant", "grantall"):
         await _handle_admin_callback(update, context, data)
         return
 
-    if data.startswith("fjdel|") or data.startswith("int|") or data.startswith("fbdel|"):
+    if data.startswith("fjdel|") or data.startswith("int|") or data.startswith("fbdel|") or data.startswith("addtime|"):
         await _handle_admin_callback(update, context, data)
         return
 
@@ -1551,7 +1564,7 @@ def has_access(user_id: int) -> bool:
     return bool(u) and float(u.get("access_until", 0)) > time.time()
 
 
-REF_HOURS = 1  # 1 refer = 1 hour
+REF_HOURS = 2  # 1 refer = 2 hours
 
 async def _force_join_ok(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     user = update.effective_user
@@ -1611,7 +1624,8 @@ async def _admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE, targe
         [B("➕ Add Firebase", "fbadd", style="success", icon=ICON_GREEN),
          B("🗑 Remove Firebase", "fbrm", style="danger", icon=ICON_RED)],
         [B("🎟 Grant Access", "grant", style="success", icon=ICON_GREEN),
-         B("📊 Users & Refers", "users", style="primary")],
+         B("🎁 Sabko Time", "grantall", style="success", icon=ICON_GREEN)],
+        [B("📊 Users & Refers", "users", style="primary")],
         [B("⏱ 1s", "int|1", style="primary"),
          B("⏱ 2s", "int|2", style="primary"),
          B("⏱ 3s", "int|3", style="primary")],
@@ -1683,6 +1697,47 @@ async def _test_firebase_urls_async(urls: List[str]) -> Dict[str, bool]:
     return dict(results)
 
 
+def _time_left_str(until: float) -> str:
+    secs = max(0, math.ceil(until - time.time()))
+    d, rem = divmod(secs, 86400)
+    h, m = divmod(rem, 3600)
+    m //= 60
+    if d:
+        return f"{d}d {h}h"
+    if h:
+        return f"{h}h {m}m"
+    return f"{m}m"
+
+
+def _users_view(chat_id: int, message_id: int):
+    users = settings.get("users", {})
+    lines = []
+    buttons = []
+    now = time.time()
+    for uid, u in list(users.items())[:15]:
+        try:
+            until = float(u.get("access_until", 0))
+        except (TypeError, ValueError):
+            until = 0
+        refs = len(u.get("referred", [])) if isinstance(u, dict) else 0
+        left = _time_left_str(until) if until > now else "⛔ Expired"
+        lines.append(f"👤 <code>{uid}</code> — ⏱ {left} | 👥 {refs} refs")
+        buttons.append([B("+1h", f"addtime|{uid}|1", style="success", icon=ICON_GREEN),
+                        B("+6h", f"addtime|{uid}|6", style="primary", icon=ICON_BLUE),
+                        B("+24h", f"addtime|{uid}|24", style="primary", icon=ICON_BLUE)])
+    buttons.append([B("◀ Back", "admin", style="primary")])
+    text = (
+        f"{BRAND}\n━━━━━━━━━━━━━━━━\n"
+        f"📊 <b>USERS & REFERS</b>\n"
+        f"👥 Total users: <b>{len(users)}</b>\n"
+        f"━━━━━━━━━━━━━━━━\n"
+        + ("\n".join(lines) if lines else "Koi user nahi")
+        + "\n━━━━━━━━━━━━━━━━\n"
+        + "➕ Neeche buttons se kisi ka bhi time badhao 👇"
+    )
+    _send_rows(chat_id, text, buttons, edit_message_id=message_id)
+
+
 async def _handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE, data: str):
     query = update.callback_query
     if data == "verify":
@@ -1737,6 +1792,16 @@ async def _handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_T
                   f"<code>123456789</code>\n\n"
                   f"Ya hours ke saath:\n"
                   f"<code>123456789 48</code>",
+                  [B("❌ Cancel", "cancelinput", style="danger", icon=ICON_RED)],
+                  mid=query.message.message_id)
+
+    elif data == "grantall":
+        awaiting_input[query.from_user.id] = "grantall"
+        await _ui(update, query.message.chat_id,
+                  f"{BRAND}\n━━━━━━━━━━━━━━━━\n"
+                  f"🎁 <b>SAB USERS ko time do</b>\n\n"
+                  f"Kitne <b>hours</b> sabko? (e.g. <code>48</code>)\n"
+                  f"Har user ko ek saath itna hi time badh jayega.",
                   [B("❌ Cancel", "cancelinput", style="danger", icon=ICON_RED)],
                   mid=query.message.message_id)
 
@@ -1824,28 +1889,25 @@ async def _handle_admin_callback(update: Update, context: ContextTypes.DEFAULT_T
             await query.answer("Firebase remove ✅", show_alert=True)
         await _admin_panel(update, context, query.message)
 
+    elif data.startswith("addtime|"):
+        parts = data.split("|")
+        if len(parts) != 3 or not parts[1].isdigit():
+            await query.answer("❌ Format galat", show_alert=True)
+            return
+        try:
+            hours = float(parts[2])
+        except ValueError:
+            await query.answer("❌ Hours galat", show_alert=True)
+            return
+        users = settings.setdefault("users", {})
+        u = users.setdefault(parts[1], {"access_until": 0, "referred": []})
+        u["access_until"] = float(u.get("access_until", 0)) + hours * 3600
+        save_settings()
+        await query.answer(f"✅ User {parts[1]} ko +{hours:g}h mila!", show_alert=True)
+        _users_view(query.message.chat_id, query.message.message_id)
+
     elif data == "users":
-        users = settings.get("users", {})
-        lines = []
-        now = time.time()
-        for uid, u in list(users.items())[:15]:
-            try:
-                until = float(u.get("access_until", 0))
-            except (TypeError, ValueError):
-                until = 0
-            left = max(0, int((until - now) / 60))
-            refs = len(u.get("referred", [])) if isinstance(u, dict) else 0
-            lines.append(f"👤 <code>{uid}</code> — ⏱ {left} min | 👥 {refs} refs")
-        text = (
-            f"{BRAND}\n━━━━━━━━━━━━━━━━\n"
-            f"📊 <b>USERS & REFERS</b>\n"
-            f"👥 Total users: <b>{len(users)}</b>\n"
-            f"━━━━━━━━━━━━━━━━\n"
-            + ("\n".join(lines) if lines else "Koi user nahi")
-        )
-        _send_rows(query.message.chat_id, text,
-                   [[B("◀ Back", "admin", style="primary")]],
-                   edit_message_id=query.message.message_id)
+        _users_view(query.message.chat_id, query.message.message_id)
 
 
 async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1914,6 +1976,31 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"👤 User: <code>{target_id}</code>\n"
                 f"⏰ {hours:g} hour access (up to "
                 f"{datetime.now().strftime('%d %b %H:%M')})",
+                parse_mode=ParseMode.HTML)
+
+        elif task == "grantall":
+            awaiting_input.pop(user_id, None)
+            if not is_admin(user_id):
+                await update.message.reply_text("❌ Sirf admin.")
+                return
+            try:
+                hours = float(txt.split()[0])
+            except (IndexError, ValueError):
+                await update.message.reply_text(
+                    "❌ Sirf hours ka number bhejo. e.g. <code>48</code>",
+                    parse_mode=ParseMode.HTML)
+                return
+            users = settings.setdefault("users", {})
+            cnt = 0
+            for u in users.values():
+                if isinstance(u, dict):
+                    u["access_until"] = float(u.get("access_until", 0)) + hours * 3600
+                    cnt += 1
+            save_settings()
+            await update.message.reply_text(
+                f"✅ <b>Sabko time mila!</b>\n"
+                f"👥 Users: <b>{cnt}</b>\n"
+                f"⏰ Har ek ko <b>+{hours:g} hour</b>",
                 parse_mode=ParseMode.HTML)
 
         elif task == "fbadd":
