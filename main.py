@@ -55,7 +55,7 @@ log = logging.getLogger("viediet_otp_bot")
 # CONFIG — YAHA SE EDIT KARO
 # ═══════════════════════════════════════════════════════════════
 
-BOT_TOKEN = os.environ.get("VIEDIET_BOT_TOKEN", "8773133018:AAEpo5FvlodjuPvthv2-iNoMMWNzFL02_uM")   # ← BotFather ka token (Railway me env se bhi aa sakta)
+BOT_TOKEN = os.environ.get("VIEDIET_BOT_TOKEN")   # ← BotFather ka token (Railway me env se bhi aa sakta)
 
 BOT_USERNAME: Optional[str] = None   # get_me() se auto-cache hota hai; refer link yahi use karta hai
 
