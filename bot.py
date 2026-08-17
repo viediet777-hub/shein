@@ -3,6 +3,7 @@ import logging
 import re
 import sqlite3
 import warnings
+import os
 from datetime import datetime
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -25,12 +26,18 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", message="If 'per_message=False'")
 
 # ========================= CONFIG =========================
-# BotFather se token yahan daalo
-BOT_TOKEN = "8697982898:AAEWN5d9qpfg2sbrgrHM6QMNzIjXvg4HbKU"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN environment variable not set!")
 
 # Apna Telegram ID yahan daalo (multiple admins chahiye to comma lagao)
 # ID nikalne ke liye Telegram me @getmyid_bot se /start karo
-ADMIN_IDS = [8139558808]
+ADMIN_IDS = [1364476174]
+admin_env = os.getenv("ADMIN_IDS", "")
+if admin_env:
+    ADMIN_IDS = [int(x.strip()) for x in admin_env.split(",") if x.strip().isdigit()]
+else:
+    ADMIN_IDS = []  # fallback, but you should set it
 
 # Har kitne referrals par 1 link milega
 REFS_PER_LINK = 3
